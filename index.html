@@ -57,7 +57,20 @@ tr:last-child td{border-bottom:none}
 .no-trend{font-size:11px;color:#aab;font-style:italic;margin-top:8px}
 @media(max-width:680px){.algo-lanes{grid-template-columns:1fr}}
 .biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}.lb{position:fixed;inset:0;background:rgba(12,16,26,.9);backdrop-filter:blur(3px);z-index:999;display:none;justify-content:center;align-items:safe center;overflow:auto;padding:28px;cursor:zoom-out}.lb.on{display:flex}.lb img{width:min(1300px,96vw);height:auto;border-radius:10px;box-shadow:0 12px 60px rgba(0,0,0,.6);margin:auto}.lb-cap{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;font-weight:600;background:rgba(0,0,0,.5);padding:5px 14px;border-radius:999px;z-index:1000}
-.matrix-img{display:block;width:100%;max-width:1100px;margin:6px auto 0;border:1px solid var(--line);border-radius:8px;cursor:zoom-in;box-shadow:var(--sh-sm)}.biz-shot img,.aimg{cursor:zoom-in}.ov-btn{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:none;color:var(--faint);font-size:10.5px;font-weight:600;padding:0;border:none;cursor:zoom-in;white-space:nowrap;transition:color .15s}.ov-btn:hover{color:var(--brand)}.ov-btn svg{width:10px;height:10px;display:block;opacity:.85}
+.matrix-img{display:block;width:100%;max-width:1100px;margin:6px auto 0;border:1px solid var(--line);border-radius:8px;cursor:zoom-in;box-shadow:var(--sh-sm)}
+.mx-wrap{overflow-x:auto;margin-top:10px;border:1px solid var(--line);border-radius:10px;box-shadow:var(--sh-sm)}
+#matrixTable{border-collapse:collapse;font-size:11px;width:100%;min-width:920px}
+#matrixTable th,#matrixTable td{border:1px solid var(--line);padding:5px 8px;vertical-align:top;text-align:left;line-height:1.42}
+#matrixTable thead th{background:#e9edf6;font-weight:700;position:sticky;top:0;z-index:1;text-align:center}
+.mx-mod{background:#eef1f8;font-weight:700;min-width:96px;color:var(--ink)}
+.mx-sub{background:#f7f9fc;color:var(--soft);font-weight:600;min-width:64px}
+.mx-feat{min-width:248px;max-width:340px;color:var(--ink)}
+.mx-v{min-width:94px;text-align:center;color:var(--soft)}
+.mx-v.ok{background:#e8f6ec;color:#1f7a37;font-weight:600}
+.mx-v.wip{background:#fdf6e3;color:#9a7b1f;font-weight:600}
+.mx-v.doing{background:#eaf0fd;color:#3a5cdb}
+.mx-v.tbd{color:#aeb6c2}
+.mx-v.muted{color:#ccd3dc}.biz-shot img,.aimg{cursor:zoom-in}.ov-btn{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:none;color:var(--faint);font-size:10.5px;font-weight:600;padding:0;border:none;cursor:zoom-in;white-space:nowrap;transition:color .15s}.ov-btn:hover{color:var(--brand)}.ov-btn svg{width:10px;height:10px;display:block;opacity:.85}
 .biz-shot{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:var(--sh);transition:box-shadow .15s}.biz-shot:hover{box-shadow:var(--sh-md)}
 .biz-shot figcaption{font-size:13px;font-weight:700;padding:10px 13px;background:#f7f9fc;border-bottom:1px solid var(--line-2)}
 .biz-shot img{width:100%;display:block}
@@ -106,8 +119,8 @@ tr:last-child td{border-bottom:none}
 <!-- PAGE 4 分市场能力进展地图 -->
 <div class="page" id="p4">
 <div class="sec-h">分市场能力进展地图（产品矩阵 · 5月版）</div>
-<div class="note">各市场能力上线 / 支持情况矩阵。当前为 5 月版截图，点击放大查看；后续按版本更新（计划数字化为可交互矩阵）。</div>
-<img class="matrix-img" src="img/market_matrix_may.png" alt="分市场能力进展矩阵（5月版）" onclick="zoomImg('img/market_matrix_may.png','分市场能力进展矩阵（5月版）')">
+<div class="note">各市场（马来西亚 / 新加坡 / 墨西哥 / 澳大利亚 / 巴西）能力上线 · 支持情况矩阵。数据在 <code>MATRIX.rows</code> 中可直接编辑（每行 = [核心模块, 类型, 分类, 功能点, 马来西亚, 新加坡, 墨西哥, 澳大利亚, 巴西]）。<span style="color:#1f7a37;font-weight:700">绿=已具备</span> · <span style="color:#9a7b1f;font-weight:700">黄=进行中(🟡)</span> · <span style="color:#3a5cdb;font-weight:700">蓝=持续进行</span> · 灰=待定/不需要。</div>
+<div class="mx-wrap"><table id="matrixTable"></table></div>
 </div>
 
 </div>
@@ -297,5 +310,70 @@ function renderBiz(){
   if(!DATA.biz||!DATA.biz.length){ box.innerHTML='<div class="biz-empty">暂未添加 Grafana 截图。在 DATA.biz 里加 {title, img(base64), desc} 即可展示。</div>'; return; }
   box.innerHTML=DATA.biz.map(b=>`<figure class="biz-shot"><figcaption>${b.title||''}</figcaption>${b.img?`<img src="${b.img}" alt="${b.title||''}" onclick="zoomImg('${b.img}','${(b.title||'').replace(/'/g,'')}')">`:'<div class="imgph">（贴 Grafana 截图）</div>'}${b.desc?`<div class="biz-desc">${b.desc}</div>`:''}</figure>`).join('');
 }
-renderRet();renderCap();renderAlgo();renderBiz();
+/* ---- PAGE4 分市场能力进展矩阵（可编辑：改 MATRIX.rows 即可）---- */
+const MATRIX={markets:["马来西亚","新加坡","墨西哥","澳大利亚","巴西"],rows:[
+  ["公域效果","","","","POC演示：已支持\n售卖使用：已支持","POC演示：已支持\n售卖使用：车型库关键字段需补齐，方案讨论中。","POC演示：已支持\n售卖使用：530","POC演示：已支持\n售卖使用：530","POC演示：522\n售卖使用：615"],
+  ["私域效果","","","","POC演示：已支持\n售卖使用：已支持","POC演示：已支持\n售卖使用：车型库关键字段需补齐，方案讨论中。","POC演示：已支持\n售卖使用：530","POC演示：已支持\n售卖使用：530","POC演示：522\n售卖使用：615"],
+  ["当地sales对齐情况","","","","新车 3次\n二手车 1次","二手车 1次\n🟡0515 第2次对齐","-","🟡0515 新车第1次对齐","-"],
+  ["底座能力\n全国家通用，具备基础能力","","通用算法指标","【P0】意图识别准确率：\n- 子指标：兜底意图比例\n- 子指标：数据召回准确率\n- 子指标：模型幻觉率","0508现状 84.94%","0508现状 84.26%","0508现状 63.1%\n🟡0530提升至75%+","0508现状 53.05%\n🟡0530提升至75%+","待定"],
+  ["","","","【P0】画像准确率","现状80%+","现状80%+","🟡0530提升至80%+","🟡0530提升至80%+","待定"],
+  ["","","","【P0】语种识别准确性","现状 81.35%\n🟡0515版本优化至85%+","不需要","不需要","不需要","不需要"],
+  ["","","","【P0】NER识别准确率","现状 80%+","现状 80%+","现状 80%+","现状 80%+","待定"],
+  ["","","通用基础 Feature","【P0】语言检测：当前轮用户语种识别","✅ 已具备","不需要","不需要","不需要","不需要"],
+  ["","","","【P0】标准车型NER：识别用户提及的官方标准车名","✅ 已具备","","","",""],
+  ["","","","【P0】追问引导：根据画像去重做追问","✅ 已具备","","","",""],
+  ["","","","【P0】回复正确价格信息：使用填槽字段，避免模型偷懒或幻觉","✅ 已具备","","","",""],
+  ["","","","【P0】画像业务逻辑优化：例如用户全款后不再询问月薪、期望首付等","✅ 已具备","","","",""],
+  ["","","","【P1】NeedAsk顺序控制：按顺序请求，保证业务逻辑通畅","✅ 已具备","","","",""],
+  ["","","","【P1】语种记忆：当前轮语种未知时，自动延续上一轮","✅ 已具备","","","",""],
+  ["","","","【P1】特殊规则回复：根据门店部分车型指定付款方式、分期方案、是否平行进口等特殊规则，支持回复话术、用户画像等特殊规则回复","✅ 0424 已具备","","","",""],
+  ["","","","【P1】Needask效果优化：增加与话术的钩子相关性，提升话术销售感。","🟡0515","","","",""],
+  ["","","","【P1】rewrite优化：提升多轮对话的连贯性。","🟡0515","待定","待定","待定","待定"],
+  ["","","","【P1】知识召回优化：解决参配、个性化知识召回但未引用的badcase","🟡0515","","","",""],
+  ["","","","【P1】泛化车型NER：识别同形错别字、同音错别字、缩写、别称、车款等","✅ 已具备第一版\n🟡0605优化第二版","待定","待定","待定","待定"],
+  ["","","","【P1】跨语种车型NER：墨西哥语（西班牙语）、泰语、中文等其他语种适配。","🟡0515 第一版支持中文别称","不需要","待定","不需要","待定"],
+  ["公域私信\n主打短频快引流，模糊话术容错率较高","POC\n(可演示)","公域算法指标","【P1】引导合理性：公域场景优先引导留资","✅ 已具备\n0508 自评83.15分","待定","待定","待定","待定"],
+  ["","","公域基础 Feature","【P0】高频业务意图本地化：覆盖85%简单提问。","✅ 已具备","✅ 已具备","✅ 已具备","✅ 已具备","🟡0522"],
+  ["","","","【P0】留资识别：WhatsApp、手机号、邮箱","✅ 已具备","✅ 已具备","✅ 已具备","✅ 已具备","待定"],
+  ["","可售卖\n(MVP阶段)\n允许复杂参配答不出，只要用钩子骗到留资即可达标售卖。","业务指标","【P0】留资转化率\n- 子指标：平均对话轮数\n- 子指标：用户单轮流失率","✅ 已具备\nM4数据见MY_26M4公域留资情况","待定","待定","待定","待定"],
+  ["","","公域基础 Feature","【P0】复杂咨询模糊回复：覆盖15%提问，如咨询配置、车型亮点、车型推荐、车型对比等。","✅ 已具备","","","",""],
+  ["","","","【P0】通用意图回复优化：采用复述用户问题+模糊钩子引导的方式，降答非所问感。","✅ 已具备","","","",""],
+  ["","","","【P0】消息长度拟人化：合并用户快速输入，避免废弃追问","✅ 已具备","","","",""],
+  ["","持续调优\n(V3)","业务效果优化","本地化表达优化","进行中，两周一版","进行中，两周一版","待定","待定","待定"],
+  ["","","算法指标优化","通用算法效果指标优化","进行中，两周一版","进行中，两周一版","进行中，两周一版","进行中，两周一版","待定"],
+  ["私域私信\n主打深度培育，容错率低，算法效果要求精确、拟人","POC\n(可演示)","公域算法指标","【P1】引导合理性：公域场景优先引导留资","✅ 已具备","","","",""],
+  ["","","通用基础 Feature","【P0】高频业务意图本地化：覆盖85%简单提问。","✅ 已具备","✅ 已具备","✅ 已具备","✅ 已具备","🟡0522"],
+  ["","可售卖\n(MVP阶段)","业务指标","【P0】线索分级比例（增加热线索占比）\n- 子指标：画像收集率\n- 子指标：平均对话轮数\n- 子指标：用户单轮流失率","🟡 0605具备第一版","待定","待定","待定","待定"],
+  ["","","私域基础 Feature","【P0】单车款配置问答：支持价格/油耗/动力等及 PC端自定义配置Description长文本","✅ 已具备\n🟡 0515 完成第三版优化","","","",""],
+  ["","","","【P0】泛车型推荐：根据预算/月供/配置，推荐门店在售车","✅ 已具备\n🟡 0515 完成第三版优化","","","",""],
+  ["","","","【P0】转人工：介入打断、消息通知，对话记录信息同步","✅ 已具备","待定","待定","待定","待定"],
+  ["","","","【P1】购车需求识别优化：支持识别非结构化的购车需求描述（例如：保值的、平行进口的等），提升画像完整度。","🟡0522","","","",""],
+  ["","持续调优\n(V3)","业务效果优化","本地化表达优化","进行中，两周一版","进行中，两周一版","待定","待定","待定"],
+  ["","","算法指标优化","通用算法效果指标优化","进行中，两周一版","进行中，两周一版","进行中，两周一版","进行中，两周一版","待定"],
+  ["","","","【P1】各市场个性化画像字段支持","🟡0615","","","",""],
+  ["","","","【P1】车型亮点介绍：这车好在哪里/这车有什么配置","待定","待定","待定","待定","待定"],
+  ["","","","【P2】跨车系竞品对比：对比A车与B车的优劣","待定","待定","待定","待定","待定"],
+  ["","","","【P2】车型卖点场景化翻译","待定","待定","待定","待定","待定"],
+  ["","","","【P2】计算符合用户月薪、贷款金额、利率等条件的月供信息","待定","待定","待定","待定","待定"],
+  ["","","","【P2】识别用户发来的车型图片","待定","待定","待定","待定","待定"],
+  ["","","","【P2】识别用户发来的pricelist、电子驾照图片","待定","待定","待定","待定","待定"],
+  ["","","","【P2】识别用户语音输入的内容","待定","待定","待定","待定","待定"],
+  ["","","","【P2】根据用户收集到的金融信息，推荐金融渠道。","待定","待定","待定","待定","待定"]
+]};
+function mxNL(s){return (s||'').replace(/\n/g,'<br>');}
+function mxCls(v){ if(!v)return 'muted'; if(/✅|已具备/.test(v))return 'ok'; if(/🟡/.test(v))return 'wip'; if(/进行中/.test(v))return 'doing'; if(/待定/.test(v))return 'tbd'; if(/不需要/.test(v)||v.trim()==='-')return 'muted'; return ''; }
+function renderMatrix(){
+  const heads=['核心模块','类型','分类','具体功能点 / 验收指标'].concat(MATRIX.markets);
+  let h='<thead><tr>'+heads.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
+  MATRIX.rows.forEach(r=>{
+    const summ=!r[1]&&!r[2]&&!r[3];
+    h+='<tr>';
+    if(summ){ h+=`<th class="mx-mod" colspan="4">${mxNL(r[0])}</th>`; }
+    else { h+=`<th class="mx-mod">${mxNL(r[0])}</th><td class="mx-sub">${mxNL(r[1])}</td><td class="mx-sub">${mxNL(r[2])}</td><td class="mx-feat">${mxNL(r[3])}</td>`; }
+    for(let i=4;i<9;i++){ h+=`<td class="mx-v ${mxCls(r[i])}">${mxNL(r[i])}</td>`; }
+    h+='</tr>';
+  });
+  document.getElementById('matrixTable').innerHTML=h+'</tbody>';
+}
+renderRet();renderCap();renderAlgo();renderBiz();renderMatrix();
 </script></body></html>
