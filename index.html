@@ -56,7 +56,8 @@ tr:last-child td{border-bottom:none}
 .mc .axt{font-size:8px;fill:var(--soft)}.mc .ptv{font-size:8px;fill:var(--ink);font-weight:600}.mc .grid{stroke:#eef1f6;stroke-width:1}
 .no-trend{font-size:11px;color:#aab;font-style:italic;margin-top:8px}
 @media(max-width:680px){.algo-lanes{grid-template-columns:1fr}}
-.biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}.lb{position:fixed;inset:0;background:rgba(12,16,26,.9);backdrop-filter:blur(3px);z-index:999;display:none;justify-content:center;align-items:safe center;overflow:auto;padding:28px;cursor:zoom-out}.lb.on{display:flex}.lb img{width:min(1300px,96vw);height:auto;border-radius:10px;box-shadow:0 12px 60px rgba(0,0,0,.6);margin:auto}.lb-cap{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;font-weight:600;background:rgba(0,0,0,.5);padding:5px 14px;border-radius:999px;z-index:1000}.biz-shot img,.aimg{cursor:zoom-in}.ov-btn{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:none;color:var(--faint);font-size:10.5px;font-weight:600;padding:0;border:none;cursor:zoom-in;white-space:nowrap;transition:color .15s}.ov-btn:hover{color:var(--brand)}.ov-btn svg{width:10px;height:10px;display:block;opacity:.85}
+.biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}.lb{position:fixed;inset:0;background:rgba(12,16,26,.9);backdrop-filter:blur(3px);z-index:999;display:none;justify-content:center;align-items:safe center;overflow:auto;padding:28px;cursor:zoom-out}.lb.on{display:flex}.lb img{width:min(1300px,96vw);height:auto;border-radius:10px;box-shadow:0 12px 60px rgba(0,0,0,.6);margin:auto}.lb-cap{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;font-weight:600;background:rgba(0,0,0,.5);padding:5px 14px;border-radius:999px;z-index:1000}
+.matrix-img{display:block;width:100%;max-width:1100px;margin:6px auto 0;border:1px solid var(--line);border-radius:8px;cursor:zoom-in;box-shadow:var(--sh-sm)}.biz-shot img,.aimg{cursor:zoom-in}.ov-btn{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:none;color:var(--faint);font-size:10.5px;font-weight:600;padding:0;border:none;cursor:zoom-in;white-space:nowrap;transition:color .15s}.ov-btn:hover{color:var(--brand)}.ov-btn svg{width:10px;height:10px;display:block;opacity:.85}
 .biz-shot{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:var(--sh);transition:box-shadow .15s}.biz-shot:hover{box-shadow:var(--sh-md)}
 .biz-shot figcaption{font-size:13px;font-weight:700;padding:10px 13px;background:#f7f9fc;border-bottom:1px solid var(--line-2)}
 .biz-shot img{width:100%;display:block}
@@ -68,9 +69,10 @@ tr:last-child td{border-bottom:none}
 <h1>私信产品 · 现状看板</h1>
 <div class="maintabs">
 <button class="mtab on" onclick="show(0,this)">留资率总览</button>
-<button class="mtab" onclick="show(1,this)">能力进展地图</button>
+<button class="mtab" onclick="show(1,this)">周汇报进展</button>
 <button class="mtab" onclick="show(2,this)">算法指标</button>
 <button class="mtab" onclick="show(3,this)">业务观测（Grafana）</button>
+<button class="mtab" onclick="show(4,this)">分市场能力进展地图</button>
 </div>
 
 <!-- PAGE 0 留资率 -->
@@ -99,6 +101,13 @@ tr:last-child td{border-bottom:none}
 <div class="sec-h">业务观测指标（数据源：Grafana · 快照 <span id="bizPeriod"></span>）</div>
 <div class="biz-grid" id="bizGrid"></div>
 <div class="note">来自 Grafana 的业务观测看板，当前为截图展示。要加图：在 DATA.biz 数组里加一项（title + img base64 + 可选 desc）。</div>
+</div>
+
+<!-- PAGE 4 分市场能力进展地图 -->
+<div class="page" id="p4">
+<div class="sec-h">分市场能力进展地图（产品矩阵 · 5月版）</div>
+<div class="note">各市场能力上线 / 支持情况矩阵。当前为 5 月版截图，点击放大查看；后续按版本更新（计划数字化为可交互矩阵）。</div>
+<img class="matrix-img" src="img/market_matrix_may.png" alt="分市场能力进展矩阵（5月版）" onclick="zoomImg('img/market_matrix_may.png','分市场能力进展矩阵（5月版）')">
 </div>
 
 </div>
