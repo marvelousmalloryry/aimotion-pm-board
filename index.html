@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>私信产品 · 现状看板</title>
+<style>
+:root{--ink:#1b2430;--soft:#677488;--faint:#9aa4b4;--line:#e6eaf1;--line-2:#eef1f7;--bg:#f4f6fa;--card:#fff;--done:#16a06a;--plan:#3b76d9;--accent:#de574e;--look:#2f7ed8;--select:#7048c4;--buy:#16a06a;--infra:#8a6d3b;--brand:#3a5cdb;--daily:#64748b;--r:10px;--sh-sm:0 1px 2px rgba(20,30,50,.05);--sh:0 1px 3px rgba(20,30,50,.07),0 1px 2px rgba(20,30,50,.04);--sh-md:0 6px 20px rgba(20,30,50,.09)}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Inter",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft Yahei",sans-serif;background:var(--bg);color:var(--ink);padding:28px 20px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1140px;margin:0 auto}h1{font-size:21px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}h1::before{content:"";width:5px;height:19px;border-radius:3px;background:linear-gradient(var(--brand),var(--select))}.sub{color:var(--soft);font-size:13px;margin:4px 0 18px}
+.maintabs{display:flex;gap:4px;margin:20px 0 22px;flex-wrap:wrap;border-bottom:1.5px solid var(--line);align-items:flex-end}
+.mtab{padding:9px 16px;background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--soft);margin-bottom:-1.5px;border-radius:7px 7px 0 0;transition:color .15s,background .15s}.mtab:hover{color:var(--ink);background:rgba(58,92,219,.05)}
+.mtab.on{color:var(--brand);border-bottom-color:var(--brand)}
+.page{display:none}.page.on{display:block;animation:fade .22s ease}@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);border-radius:var(--r);overflow:hidden;font-size:13px;border:1px solid var(--line);box-shadow:var(--sh);font-variant-numeric:tabular-nums}
+th,td{padding:10px 12px;text-align:center;border-bottom:1px solid var(--line-2)}
+th{background:#f7f9fc;font-weight:700;font-size:11.5px;color:var(--soft);letter-spacing:.02em}
+td.m{text-align:center;font-weight:700;vertical-align:middle;background:#fcfdff}tbody tr:hover td{background:#f9fbfe}
+tr:last-child td{border-bottom:none}
+.rate{font-weight:700}.rate.up{color:var(--done)}.rate.down{color:var(--accent)}
+.expander{color:var(--brand);font-size:12px;font-weight:600;cursor:pointer;user-select:none}
+.arow td{background:#fafbfd;padding:0}
+.abox{padding:13px 16px;text-align:left}.abox-h{font-size:12px;font-weight:700;color:var(--ink);margin:0 0 8px;display:flex;align-items:center;gap:6px}.abox-h::before{content:"";width:3px;height:13px;border-radius:2px;background:var(--brand)}
+.aimg{max-width:100%;border:1px solid var(--line);border-radius:8px;margin-bottom:10px;display:block}
+.alist{font-size:12.5px;color:var(--ink);line-height:1.6;padding-left:0;list-style:none}
+.alist li{padding:5px 0 5px 16px;position:relative;border-bottom:1px dashed var(--line)}
+.alist li:last-child{border-bottom:none}
+.alist li::before{content:"•";position:absolute;left:2px;color:var(--brand);font-weight:700}
+.tr{font-size:12px;font-weight:700}.tr.down{color:var(--accent)}.tr.up{color:var(--done)}.tr.flat{color:var(--soft)}
+.tr2{display:flex;align-items:center;gap:5px;justify-content:center;margin:1px 0}.tr2-lbl{font-size:9.5px;color:var(--soft)}
+.cmp{font-size:12.5px;color:var(--ink);background:#eef2fb;border:1px solid #dde6f8;border-radius:8px;padding:9px 12px;margin-bottom:12px}.cmp b{color:var(--brand);font-weight:700}
+.imgph{font-size:11px;color:#bcc5d2;font-style:italic;border:1px dashed var(--line);border-radius:7px;padding:14px;text-align:center;margin-bottom:10px}
+.empty-c{color:#bcc5d2}
+.sec-h{font-size:15px;font-weight:700;margin:22px 0 10px}
+.note{font-size:11.5px;color:var(--soft);margin-top:10px;padding:11px 13px;background:var(--card);border:1px solid var(--line);border-radius:9px}
+/* 能力地图 */
+.tabs{display:flex;gap:8px;margin:6px 0;flex-wrap:wrap}.tab{padding:7px 15px;border:1px solid var(--line);background:var(--card);border-radius:999px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--soft);box-shadow:var(--sh-sm);transition:all .15s}.tab:hover{color:var(--ink);border-color:#c7d0de}.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}.tabs.sub .tab{padding:5px 12px;font-size:12px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:12px}.col{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;border-top:3px solid var(--c);box-shadow:var(--sh)}.col-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}.col-h .name{font-size:14.5px;font-weight:700}.col-h .cnt{font-size:11.5px;color:var(--faint);font-weight:600}
+.card{position:relative;border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:6px;border-left:3px solid var(--st);background:var(--card);transition:box-shadow .15s}
+.card.has-shot{display:flex;gap:12px;align-items:center}.card.has-shot .card-main{flex:1;min-width:0}
+.card-shot{flex-shrink:0;width:160px;height:84px;object-fit:cover;object-position:left top;border:1px solid var(--line);border-radius:6px;cursor:pointer;transition:transform .15s}.card-shot:hover{transform:scale(1.03)}.card:last-child{margin-bottom:0}.card:hover{box-shadow:var(--sh-md)}.card .code{font-size:10.5px;font-weight:700;color:#fff;background:var(--st);padding:2px 8px;border-radius:5px;display:inline-block;margin-bottom:6px;letter-spacing:.02em}.card .tag{font-size:10px;font-weight:700;color:#9a7b3f;background:#fdf4e3;border:1px solid #ecd9ad;padding:2px 7px;border-radius:5px;margin-left:6px}
+.card .mkt{position:absolute;top:10px;right:10px;font-size:10.5px;font-weight:700;color:var(--accent);background:#fdeceb;border:1px solid #f5c9c7;padding:1px 6px;border-radius:5px}.card .cap{font-size:13.5px;font-weight:600;margin-bottom:3px;line-height:1.35}.card .eff{font-size:12.5px;color:var(--done);font-weight:600;line-height:1.45}.card .eff.plan{color:var(--plan)}.card .eff.daily{color:var(--daily)}.card .infl{font-size:11.5px;color:var(--soft);margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);line-height:1.45}.card .infl b{color:var(--ink)}
+.cap-group{border:1.5px dashed #b9c6f5;border-radius:12px;padding:7px 7px 3px;margin-bottom:8px;background:linear-gradient(rgba(58,92,219,.045),rgba(112,72,196,.03));transition:box-shadow .15s}.cap-group:hover{box-shadow:0 0 0 3px rgba(58,92,219,.13)}.cap-group .card{margin-bottom:6px}.cap-group-cap{font-size:12px;font-weight:700;color:var(--brand);text-align:center;margin:1px 0 6px;letter-spacing:.01em}.rr{display:inline-block;background:linear-gradient(135deg,#18a872,#0f8d5e);color:#fff;font-weight:700;padding:1px 8px;border-radius:6px;font-size:12px;line-height:1.5;letter-spacing:.2px;box-shadow:0 1px 2px rgba(15,141,94,.28)}.rr:hover{filter:brightness(1.06)}
+.empty{font-size:12.5px;color:#aab;font-style:italic;padding:8px 0}.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--soft)}.legend span{display:flex;align-items:center;gap:5px}.dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+/* 算法指标 */
+.algo-deflink{font-size:12px;color:var(--soft);margin-bottom:14px}.algo-deflink a{color:var(--brand);font-weight:600}
+.algo-mkt{margin-bottom:24px}.algo-mkt h3{font-size:14px;font-weight:700;margin-bottom:10px}
+.algo-lanes{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lane{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--card);box-shadow:var(--sh)}
+.lane-h{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.lane-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.algo-card{border:1px solid var(--line);border-radius:10px;padding:11px 12px;background:#fafbfd;transition:box-shadow .15s}.algo-card:hover{box-shadow:var(--sh)}
+.ac-type{font-size:11px;color:var(--soft);font-weight:600;margin-bottom:4px}
+.ac-num{font-size:23px;font-weight:800;color:var(--ink);line-height:1.1}
+.ac-ver{font-size:10.5px;color:var(--soft);margin-top:3px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.delta{font-weight:700}.delta.up{color:var(--done)}.delta.down{color:var(--accent)}
+.ac-toggle{font-size:10.5px;color:var(--brand);font-weight:600;cursor:pointer;margin-top:7px;user-select:none}
+.ac-chart{margin-top:8px}
+.mc .axt{font-size:8px;fill:var(--soft)}.mc .ptv{font-size:8px;fill:var(--ink);font-weight:600}.mc .grid{stroke:#eef1f6;stroke-width:1}
+.no-trend{font-size:11px;color:#aab;font-style:italic;margin-top:8px}
+@media(max-width:680px){.algo-lanes{grid-template-columns:1fr}}
+.biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}.lb{position:fixed;inset:0;background:rgba(12,16,26,.9);backdrop-filter:blur(3px);z-index:999;display:none;justify-content:center;align-items:safe center;overflow:auto;padding:28px;cursor:zoom-out}.lb.on{display:flex}.lb img{width:min(1300px,96vw);height:auto;border-radius:10px;box-shadow:0 12px 60px rgba(0,0,0,.6);margin:auto}.lb-cap{position:fixed;top:12px;left:50%;transform:translateX(-50%);color:#fff;font-size:13px;font-weight:600;background:rgba(0,0,0,.5);padding:5px 14px;border-radius:999px;z-index:1000}.biz-shot img,.aimg{cursor:zoom-in}.ov-btn{display:inline-flex;align-items:center;gap:3px;margin-top:5px;background:none;color:var(--faint);font-size:10.5px;font-weight:600;padding:0;border:none;cursor:zoom-in;white-space:nowrap;transition:color .15s}.ov-btn:hover{color:var(--brand)}.ov-btn svg{width:10px;height:10px;display:block;opacity:.85}
+.biz-shot{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card);box-shadow:var(--sh);transition:box-shadow .15s}.biz-shot:hover{box-shadow:var(--sh-md)}
+.biz-shot figcaption{font-size:13px;font-weight:700;padding:10px 13px;background:#f7f9fc;border-bottom:1px solid var(--line-2)}
+.biz-shot img{width:100%;display:block}
+.biz-desc{font-size:12px;color:var(--soft);padding:10px 13px;line-height:1.6}
+.biz-empty{font-size:12.5px;color:var(--faint);font-style:italic;padding:30px;text-align:center;border:1px dashed var(--line);border-radius:var(--r)}
+
+
+</style></head><body><div class="wrap">
+<h1>私信产品 · 现状看板</h1>
+<div class="maintabs">
+<button class="mtab on" onclick="show(0,this)">留资率总览</button>
+<button class="mtab" onclick="show(1,this)">能力进展地图</button>
+<button class="mtab" onclick="show(2,this)">算法指标</button>
+<button class="mtab" onclick="show(3,this)">业务观测（Grafana）</button>
+</div>
+
+<!-- PAGE 0 留资率 -->
+<div class="page on" id="p0">
+<div class="sec-h">公域留资率总览（各市场 × 新车/二手）</div>
+<table id="retTable"></table>
+<div class="note">各业务线波动原因点击「展开」查看详情；空白为暂未统计市场。</div>
+</div>
+
+<!-- PAGE 1 能力地图 -->
+<div class="page" id="p1">
+<div class="sec-h">能力进展（看 / 选 / 买 / 基建）</div>
+<div class="tabs" id="timeTabs"></div><div id="board"></div>
+<div class="legend"><span><i class="dot" style="background:var(--done)"></i>本周</span><span><i class="dot" style="background:var(--daily)"></i>日常工作</span><span><i class="dot" style="background:var(--plan)"></i>近两周</span><span>↑提升 · 【新】新能力 · 右上角=特定市场，无=全市场</span></div>
+</div>
+
+<!-- PAGE 2 算法指标 -->
+<div class="page" id="p2">
+<div class="sec-h">算法效果指标（各市场 · 多指标矩阵）</div>
+<div id="algoBox"></div>
+<div class="note">数据来自评测，按版本号（如 v0604 = 6月4日评测版）标注。各指标显示最新值 + 涨幅，点「看趋势」展开折线（横轴版本、纵轴准确率）。</div>
+</div>
+
+<div class="page" id="p3">
+<div class="algo-deflink">📊 <a href="https://nlp-algorithm-prod.yxqiche.com/grafana-data-platform/d/afovi0k66x0qod/989cd980-6dfc-517c-8153-7aaf9859b6ef?orgId=1" target="_blank">在 Grafana 中打开</a><span id="bizDefLink"></span></div>
+<div class="sec-h">业务观测指标（数据源：Grafana · 快照 <span id="bizPeriod"></span>）</div>
+<div class="biz-grid" id="bizGrid"></div>
+<div class="note">来自 Grafana 的业务观测看板，当前为截图展示。要加图：在 DATA.biz 数组里加一项（title + img base64 + 可选 desc）。</div>
+</div>
+
+</div>
+
+<div class="lb" id="lb" onclick="this.classList.remove('on')"><div class="lb-cap" id="lbCap"></div><img id="lbImg" src="" alt=""></div>
+
+<script>
+const DATA = {"period": "0618-0624", "retentionPeriod": "累计0401起 / 近7天", "retention": [{"market": "马来", "type": "新车", "cumU": 559, "cumR": 204, "w7U": 27, "w7R": 15, "analysis": ["Toyota Sungai Buloh：上周进私 23、本周降至 0，登录后台未见异常 —— 倾向流量侧停投/异常，暂不归为能力问题，持续观测", "新增 Jetour Klang、Fadason Sdn. Bhd 两门店，留资指标均表现不错", "上周预测 omoda+意向车修复后回升至 47.17%，本周实际（纯AI+混合）留资率达 55.6%，超预期"], "img": "", "prevW7Rate": 29.27}, {"market": "马来", "type": "二手车", "cumU": 420, "cumR": 173, "w7U": 43, "w7R": 21, "analysis": ["本周约 3 家开口量较大；ONK、新增门店 INFINITY WORLD 表现较好", "Inti Bike 仍有 4 个用户进私问 motor（摩托）车，原话「Iklan dan syarikat dlm facebook jual motor」→ 推测进私问 motor 多来自 FB 渠道、与门店在售车型不匹配；并入「分渠道拆留资指标」todo（需推动米那提侧把渠道信息同步给算法）"], "img": "", "prevW7Rate": 47.92}, {"market": "新加坡", "type": "新车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "新加坡", "type": "二手车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "墨西哥", "type": "新车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "墨西哥", "type": "二手车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "澳洲", "type": "新车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "澳洲", "type": "二手车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "巴西", "type": "新车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}, {"market": "巴西", "type": "二手车", "cumU": null, "cumR": null, "w7U": null, "w7R": null, "analysis": [], "img": "", "prevW7Rate": null}], "caps": [{"time": "this", "cap": "葡语 needask 销售感优化", "eff": "巴西葡语行动类 needask 优化销售感，模型按用户需求动态生成对应利益点", "infl": "追问更像真人销售、按需求给到利益点，而非机械问答", "col": "select", "code": "S1", "tcol": "select", "mkt": "巴西", "codeName": "S1 购车需求深度挖掘"}, {"time": "this", "cap": "二手车场景过滤新车知识", "eff": "全市场二手车场景知识召回过滤质保、guide price 等新车相关数据，不召回", "infl": "二手车场景不再误答新车质保/价格", "col": "look", "code": "L4", "tcol": "look", "mkt": "", "codeName": "L4 车型识别与推荐"}, {"time": "this", "cap": "意向车价格按车款粒度报价", "eff": "按车款粒度分场景报价：单车款直接报价；只有车系或命中多车款时报「最低…起（版本）」并带出在售款", "infl": "价格回复更精准不含糊，降低客户价格防备、推进对话", "col": "select", "code": "S4", "tcol": "select", "mkt": "", "codeName": "S4 金融方案"}, {"time": "this", "cap": "意向车月供三级取值", "eff": "月供按「门店配置→公式计算→basic rate」三级取值；单车款给完整计算依据，车系/多车款报「最低…起（版本）」，计算口径（rate/期限/首付）随门店实际配置动态展示", "infl": "门店缺配也能给月供、口径随门店真实配置，不走兜底", "col": "select", "code": "S4", "tcol": "select", "mkt": "MY", "codeName": "S4 金融方案"}, {"time": "this", "cap": "新增算法请求维度 Grafana 指标", "eff": "新增按算法请求维度的 Grafana 观测指标", "infl": "算法侧请求可量化观测", "col": "infra", "code": "指标", "tcol": "infra", "mkt": "", "img": "img/ops_monitor.png", "codeName": "基建·效果指标"}, {"time": "daily", "cap": "澳洲投流边界梳理", "eff": "投流车 description+价格已配好；视频缺开口话术——用户进私会强调来自哪个视频、但私信取不到视频内容，建议视频末尾加开口话术；投放策略待与寅亮确认", "infl": "理顺澳洲投流到私信的承接、减少进私后断点", "col": "infra", "code": "投放", "tcol": "infra", "mkt": "澳洲", "codeName": "运营·投放协同"}, {"time": "daily", "cap": "TK/FB 渠道标识打通", "eff": "工程本周给算法传渠道标识，后续指标可区分渠道分析", "infl": "留资等指标可分 TK/FB 渠道拆解归因", "col": "infra", "code": "工程", "tcol": "infra", "mkt": "", "codeName": "基建·渠道标识"}, {"time": "next", "cap": "唤醒激活", "eff": "预计下周与工程完成需求对齐后上线", "infl": "沉默/流失用户按原因主动唤醒激活", "col": "buy", "code": "B4", "tcol": "buy", "mkt": "", "codeName": "B4 流失激活"}, {"time": "next", "cap": "冷线索清洗", "eff": "下周完成｜基于模板消息测试算法第一句开口的回复效果和准确率", "infl": "验证唤醒/冷线索场景第一句开口的应答质量与准确率，为唤醒激活打底", "col": "infra", "code": "评测", "tcol": "infra", "mkt": "", "codeName": "基建·评测/测试"}, {"time": "next", "cap": "澳洲新增中文回复", "eff": "0712｜澳洲市场新增中文回复", "infl": "澳洲中文用户可获中文应答", "col": "look", "code": "L1", "tcol": "look", "mkt": "澳洲", "codeName": "L1 本地化多语言"}, {"time": "next", "cap": "画像主动消费", "eff": "0703｜意图按利益点分类，每类 prompt 补画像知识后主动调取；巴西会上第一版", "infl": "从被动记录到主动调取，客户感觉被记住、应答更贴心", "col": "select", "code": "S3", "tcol": "select", "mkt": "先巴西", "codeName": "S3 历史信息消费"}], "algo": {"马来": [{"ver": "v0201", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 58.76}}, {"ver": "v0302", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 83.47, "画像准确率": 92.63}}, {"ver": "v0201", "type": "新车", "area": "公域", "metrics": {"意图准确率": 66.72}}, {"ver": "v0304", "type": "新车", "area": "公域", "metrics": {"意图准确率": 88.65, "画像准确率": 92.63}}], "新加坡": [{"ver": "v0326", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 85.75}}], "墨西哥": [{"ver": "v0422", "type": "新车", "area": "公域", "metrics": {"意图准确率": 43.69}}, {"ver": "v0508", "type": "新车", "area": "公域", "metrics": {"意图准确率": 64.98}}, {"ver": "v0515", "type": "新车", "area": "公域", "metrics": {"意图准确率": 74.49}}, {"ver": "v0525", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 68.15}}, {"ver": "v0529", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 72.87}}, {"ver": "v0601", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 79.54}}, {"ver": "v0603", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 80.07}}, {"ver": "v0604", "type": "新车", "area": "公域", "metrics": {"意图准确率": 78.98}}, {"ver": "v0605", "type": "新车", "area": "公域", "metrics": {"意图准确率": 79.93}}], "澳洲": [{"ver": "v0429", "type": "新车", "area": "私域", "metrics": {"意图准确率": 55.07}}, {"ver": "v0511", "type": "新车", "area": "私域", "metrics": {"意图准确率": 72.32}}, {"ver": "v0514", "type": "新车", "area": "私域", "metrics": {"意图准确率": 92.03}}, {"ver": "v0526", "type": "二手车", "area": "私域", "metrics": {"意图准确率": 58.89}}, {"ver": "v0528", "type": "二手车", "area": "私域", "metrics": {"意图准确率": 73.08}}, {"ver": "v0603", "type": "二手车", "area": "私域", "metrics": {"意图准确率": 83.14}}], "巴西": [{"ver": "v0528", "type": "新车", "area": "公域", "metrics": {"意图准确率": 68.21}}, {"ver": "v0603", "type": "新车", "area": "公域", "metrics": {"意图准确率": 75.78}}, {"ver": "v0612", "type": "二手车", "area": "公域", "metrics": {"意图准确率": 75.24}}]}, "weekLabel": "本周 0604–0610", "metricDefUrl": "https://my.feishu.cn/wiki/QsqLwnsj5ie6hykFKlMc1ZTYnPh", "retOverview": [],"capGroups": {}, "biz": [{"title": "马来新车大盘（0618-0624）", "img": "img/grafana_newcar.png", "desc": "总留资率（纯AI+混合）55.6%（15/27）｜纯AI 55.6%｜混合 55.6%｜纯人工 0%｜会话转人工 7.41%｜重复申明 18.5%"}, {"title": "马来二手车大盘（0618-0624）", "img": "img/grafana_used.png", "desc": "总留资率（纯AI+混合）48.84%（21/43）｜纯AI 47.6%｜混合 50%｜纯人工 0%｜会话转人工 27.9%｜重复申明 25.6%"}]};
+const LSBNAME = {};
+DATA.caps.forEach(c=>{ if(c.code && c.codeName) LSBNAME[c.code]=c.codeName; });
+
+/* ---- main tabs ---- */
+function show(i,btn){
+  document.querySelectorAll('.page').forEach((p,idx)=>p.classList.toggle('on',idx===i));
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function zoomImg(src,cap){ const lb=document.getElementById('lb'); document.getElementById('lbImg').src=src; document.getElementById('lbCap').textContent=cap||''; lb.classList.add('on'); }
+
+/* ---- PAGE0 留资率 ---- */
+function pct(r,u){ return (u&&r!=null)?((r/u*100).toFixed(2)+'%'):null; }
+function rawPct(r,u){ return (u&&r!=null)?(r/u*100):null; }
+function trendTag(diff,label){
+  if(diff==null) return '';
+  let cls='flat',sym='≈';
+  if(diff<-0.05){cls='down';sym='▼';}
+  else if(diff>0.05){cls='up';sym='▲';}
+  const sign=diff>0?'+':'';
+  return `<div class="tr2"><span class="tr2-lbl">${label}</span><span class="tr ${cls}">${sym} ${sign}${diff.toFixed(2)}pp</span></div>`;
+}
+let retOpen={};
+function renderRet(){
+  let h='<tr><th rowspan="2">市场</th><th rowspan="2">车型</th><th colspan="3">累计（0401起）</th><th colspan="3">近7天（'+DATA.period+'）</th><th rowspan="2">趋势</th><th rowspan="2">分析</th></tr>'+
+        '<tr><th>用户数</th><th>留资数</th><th>留资率</th><th>用户数</th><th>留资数</th><th>留资率</th></tr>';
+  const ovMap={}; (DATA.retOverview||[]).forEach(o=>{ if(o.market) ovMap[o.market]=o; });
+  const hasAnalysis = r=>{ const a=Array.isArray(r.analysis)?r.analysis.filter(x=>x&&x.trim()):[]; return a.length>0||(r.img&&r.img.trim()); };
+  // 每个市场实际渲染的行数(主行 + 已展开的分析行)= 该市场市场列 rowspan
+  const mktRows={};
+  DATA.retention.forEach((r,i)=>{ mktRows[r.market]=(mktRows[r.market]||0)+1+((hasAnalysis(r)&&retOpen[i])?1:0); });
+  const shownMkt={};
+  DATA.retention.forEach((r,i)=>{
+    const cumP=pct(r.cumR,r.cumU), w7P=pct(r.w7R,r.w7U);
+    const e='<td class="empty-c">—</td>';
+    const aList = Array.isArray(r.analysis)?r.analysis.filter(x=>x&&x.trim()):[];
+    const hasA = hasAnalysis(r);
+    const cv2=rawPct(r.cumR,r.cumU), wv=rawPct(r.w7R,r.w7U);
+    // 趋势A:近7天 vs 累计;趋势B:近7天 vs 上周近7天
+    let trend='<span class="empty-c">—</span>';
+    if(cv2!=null&&wv!=null){
+      trend = trendTag(wv-cv2,'vs累计');
+      if(r.prevW7Rate!=null) trend += trendTag(wv-r.prevW7Rate,'vs上周');
+    }
+    let mCell='';
+    if(!shownMkt[r.market]){ shownMkt[r.market]=1;
+      const ov=ovMap[r.market];
+      const ovBtn = ov?`<div class="ov-btn" title="查看${(ov.title||'留资率总览').replace(/"/g,'')}" onclick="zoomImg('${ov.img}','${(ov.title||'').replace(/'/g,'')}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>全览</div>`:'';
+      mCell=`<td class="m" rowspan="${mktRows[r.market]}">${r.market}${ovBtn}</td>`;
+    }
+    h+=`<tr>${mCell}<td>${r.type}</td>`+
+       (r.cumU!=null?`<td>${r.cumU}</td><td>${r.cumR}</td><td class="rate">${cumP}</td>`:e+e+e)+
+       (r.w7U!=null?`<td>${r.w7U}</td><td>${r.w7R}</td><td class="rate">${w7P}</td>`:e+e+e)+
+       `<td>${trend}</td>`+
+       `<td>${hasA?`<span class="expander" onclick="toggleA(${i})">${retOpen[i]?'收起 ▴':'展开 ▾'}</span>`:'<span class="empty-c">—</span>'}</td></tr>`;
+    if(hasA && retOpen[i]){
+      const lis = aList.map(x=>`<li>${x}</li>`).join('');
+      let cmp='';
+      if(cv2!=null&&wv!=null){
+        cmp=`<div class="cmp">近7天留资率 <span class="rr">${wv.toFixed(2)}%</span> ｜ 累计 ${cv2.toFixed(2)}%`+
+            (r.prevW7Rate!=null?` ｜ 上周 ${r.prevW7Rate.toFixed(2)}%`:'')+`</div>`;
+      }
+      h+=`<tr class="arow"><td colspan="9"><div class="abox">`+
+         cmp+
+         `<div class="abox-h">归因分析</div>`+
+         (r.img&&r.img.trim()?`<img class="aimg" src="${r.img}" alt="${r.market}${r.type}分析图" onclick="zoomImg('${r.img}','${r.market}${r.type}分析图')">`:'')+
+         (lis?`<ul class="alist">${lis}</ul>`:'')+
+         `</div></td></tr>`;
+    }
+  });
+  document.getElementById('retTable').innerHTML=h;
+}
+function toggleA(i){ retOpen[i]=!retOpen[i]; renderRet(); }
+
+/* ---- PAGE1 能力地图 ---- */
+const COLS={lsb:[{k:'look',n:'看 Look',d:'L1-L7',c:'var(--look)'},{k:'select',n:'选 Select',d:'S1-S10',c:'var(--select)'},{k:'buy',n:'买 Buy',d:'B1-B4',c:'var(--buy)'},{k:'infra',n:'基建/底层',d:'',c:'var(--infra)'}],
+tech:[{k:'look',n:'看 Look',d:'公转私',c:'var(--look)'},{k:'select',n:'选 Select',d:'谈判推进',c:'var(--select)'},{k:'buy',n:'买 Buy',d:'销售协同',c:'var(--buy)'},{k:'infra',n:'基建',d:'工程/数据',c:'var(--infra)'}]};
+const VER=[{k:'lsb',l:'按 L/S/B 模块'},{k:'tech',l:'按 看/选/买'}];const TM=[{k:'this',l:'本周（0618-0624）'},{k:'daily',l:'日常工作'},{k:'next',l:'近两周'}];
+const cv='lsb';let ct='this';
+function capCard(d){
+  const stcMap={this:'var(--done)',daily:'var(--daily)',next:'var(--plan)'};
+  const stc=stcMap[d.time]||'var(--plan)';const ec=d.time==='next'?'eff plan':(d.time==='daily'?'eff daily':'eff');
+  const codeTxt = LSBNAME[d.code]||d.code;
+  const inner = `${d.mkt?`<span class="mkt">${d.mkt}</span>`:''}<span class="code">${codeTxt}</span>${d.tag?`<span class="tag">${d.tag}</span>`:''}<div class="cap">${d.cap}</div><div class="${ec}">${d.eff}</div>${d.infl?`<div class="infl"><b>影响：</b>${d.infl}</div>`:''}`;
+  const shot = d.img?`<img class="card-shot" src="${d.img}" alt="${d.cap}截图" title="点击看大图：${d.cap}" onclick="zoomImg('${d.img}','${d.cap.replace(/'/g,'')}')">`:'';
+  return `<div class="card${d.img?' has-shot':''}" style="--st:${stc}">${d.img?`<div class="card-main">${inner}</div>${shot}`:inner}</div>`;
+}
+function renderCap(){
+  document.getElementById('timeTabs').innerHTML=TM.map(t=>`<div class="tab ${t.k===ct?'on':''}" onclick="st('${t.k}')">${t.l}</div>`).join('');
+  let h='<div class="cols">';
+  COLS[cv].forEach(col=>{
+    const items=DATA.caps.filter(d=>d.time===ct && d.col===col.k);
+    h+=`<div class="col" style="--c:${col.c}"><div class="col-h"><span class="name">${col.n}</span><span class="cnt">${col.d} · ${items.length}项</span></div>`;
+    const tmLabel=(TM.find(t=>t.k===ct)||{}).l||'';
+    if(!items.length)h+=`<div class="empty">${tmLabel}暂无</div>`;
+    else {
+      let i=0;
+      while(i<items.length){
+        const d=items[i];
+        if(d.grp){
+          const gid=d.grp, g=[];
+          while(i<items.length && items[i].grp===gid){ g.push(items[i]); i++; }
+          const meta=(DATA.capGroups&&DATA.capGroups[gid])||{};
+          h+=`<div class="cap-group">${meta.label?`<div class="cap-group-cap">📈 ${meta.label}</div>`:''}${g.map(capCard).join('')}</div>`;
+        } else { h+=capCard(d); i++; }
+      }
+    }
+    h+='</div>';
+  });
+  h+='</div>';document.getElementById('board').innerHTML=h;
+}
+function st(k){ct=k;renderCap();}
+
+/* ---- PAGE2 算法指标 ---- */
+function miniChart(arr, metricKey){
+  // arr: 该type所有版本(按序),metricKey: 指标名。画带轴的小折线
+  const pts0 = arr.filter(a=>a.metrics&&a.metrics[metricKey]!=null).map(a=>({ver:a.ver,v:a.metrics[metricKey]}));
+  if(pts0.length<2) return '<div class="no-trend">暂无趋势(仅一个版本)</div>';
+  const W=260,H=110,L=34,R=10,T=10,B=34;
+  const vals=pts0.map(p=>p.v);
+  let min=Math.min(...vals),max=Math.max(...vals);
+  const pad=(max-min)*0.15||5; min=Math.max(0,min-pad); max=Math.min(100,max+pad);
+  const range=(max-min)||1;
+  const x=i=>L+(W-L-R)*i/(pts0.length-1);
+  const y=v=>T+(H-T-B)*(1-(v-min)/range);
+  const line=pts0.map((p,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(p.v).toFixed(1)).join(' ');
+  // y轴刻度3个
+  const yticks=[min,(min+max)/2,max].map(v=>`<text x="${L-5}" y="${(y(v)+3).toFixed(1)}" class="axt" text-anchor="end">${v.toFixed(0)}</text><line x1="${L}" y1="${y(v).toFixed(1)}" x2="${W-R}" y2="${y(v).toFixed(1)}" class="grid"/>`).join('');
+  // x轴版本标签(斜放)
+  const xlabels=pts0.map((p,i)=>`<text x="${x(i).toFixed(1)}" y="${H-B+14}" class="axt" text-anchor="end" transform="rotate(-40 ${x(i).toFixed(1)} ${H-B+14})">${p.ver}</text>`).join('');
+  // 点+数值
+  const dots=pts0.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="3" fill="var(--select)"/><text x="${x(i).toFixed(1)}" y="${(y(p.v)-7).toFixed(1)}" class="ptv" text-anchor="middle">${p.v}</text>`).join('');
+  return `<svg class="mc" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px">${yticks}<path d="${line}" fill="none" stroke="var(--select)" stroke-width="1.8"/>${dots}${xlabels}</svg>`;
+}
+let algoOpen={}; // 记录展开状态 key=mkt|type|metric
+function toggleTrend(key){ algoOpen[key]=!algoOpen[key]; renderAlgo(); }
+function renderAlgo(){
+  let h='';
+  Object.keys(DATA.algo).forEach(mkt=>{
+    const rows=DATA.algo[mkt];
+    const byType={};
+    rows.forEach(r=>{ (byType[r.type]=byType[r.type]||[]).push(r); });
+    h+=`<div class="algo-mkt"><h3>${mkt}</h3><div class="algo-lanes">`;
+    // 固定新车、二手车顺序;有就显示
+    const order=['新车','二手车'];
+    const types=[...new Set([...order.filter(t=>byType[t]), ...Object.keys(byType)])];
+    types.forEach(type=>{
+      const arr=byType[type]; if(!arr) return;
+      const metricKeys=[...new Set(arr.flatMap(a=>Object.keys(a.metrics||{})))];
+      h+=`<div class="lane"><div class="lane-h">${type}</div><div class="lane-cards">`;
+      metricKeys.forEach(mk=>{
+        const withVal=arr.filter(a=>a.metrics&&a.metrics[mk]!=null);
+        if(!withVal.length) return;
+        const latest=withVal[withVal.length-1], first=withVal[0];
+        const delta=withVal.length>1?(latest.metrics[mk]-first.metrics[mk]):null;
+        const dTxt=delta!=null?`<span class="delta ${delta>=0?'up':'down'}">${delta>=0?'▲':'▼'}${Math.abs(delta).toFixed(2)}pp</span>`:'';
+        const key=`${mkt}|${type}|${mk}`;
+        const open=algoOpen[key];
+        h+=`<div class="algo-card">
+          <div class="ac-type">${mk}</div>
+          <div class="ac-num">${latest.metrics[mk]}%</div>
+          <div class="ac-ver">${latest.ver}${dTxt}</div>
+          <div class="ac-toggle" onclick="toggleTrend('${key}')">${open?'收起趋势 ▴':'看趋势 ▾'}</div>
+          ${open?`<div class="ac-chart">${miniChart(arr,mk)}</div>`:''}
+        </div>`;
+      });
+      h+='</div></div>';
+    });
+    h+='</div></div>';
+  });
+  document.getElementById('algoBox').innerHTML=h;
+}
+
+function renderBiz(){
+  const defUrl=DATA.metricDefUrl, dl=document.getElementById('bizDefLink');
+  if(dl) dl.innerHTML=defUrl?` ｜ 📖 指标定义见 <a href="${defUrl}" target="_blank">飞书文档</a>`:'';
+  const bp=document.getElementById('bizPeriod'); if(bp) bp.textContent=DATA.period;
+  const box=document.getElementById('bizGrid');
+  if(!DATA.biz||!DATA.biz.length){ box.innerHTML='<div class="biz-empty">暂未添加 Grafana 截图。在 DATA.biz 里加 {title, img(base64), desc} 即可展示。</div>'; return; }
+  box.innerHTML=DATA.biz.map(b=>`<figure class="biz-shot"><figcaption>${b.title||''}</figcaption>${b.img?`<img src="${b.img}" alt="${b.title||''}" onclick="zoomImg('${b.img}','${(b.title||'').replace(/'/g,'')}')">`:'<div class="imgph">（贴 Grafana 截图）</div>'}${b.desc?`<div class="biz-desc">${b.desc}</div>`:''}</figure>`).join('');
+}
+renderRet();renderCap();renderAlgo();renderBiz();
+</script></body></html>
