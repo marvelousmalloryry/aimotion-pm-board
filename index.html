@@ -367,16 +367,19 @@ function mxNL(s){return (s||'').replace(/\n/g,'<br>');}
 function mxLabel(s){ if(!s)return ''; const p=s.split('\n'); if(p.length<2)return p[0]||''; return '<b>'+p[0]+'</b><span class="mx-desc">'+p.slice(1).join('<br>')+'</span>'; }
 function mxCls(v){ if(!v)return 'muted'; if(/✅|已具备/.test(v))return 'ok'; if(/🟡/.test(v))return 'wip'; if(/进行中/.test(v))return 'doing'; if(/待定/.test(v))return 'tbd'; if(/不需要/.test(v)||v.trim()==='-')return 'muted'; return ''; }
 function renderMatrix(){
+  const rows=MATRIX.rows, n=rows.length;
   const heads=['核心模块','类型','分类','具体功能点 / 验收指标'].concat(MATRIX.markets);
+  const isSumm=i=>!rows[i][1]&&!rows[i][2]&&!rows[i][3];
+  function isTop(i,c){ if(i===0)return true; if(rows[i][c])return true; for(let p=0;p<c;p++){ if(rows[i][p])return true; } return false; }
+  function span(i,c){ let s=1; for(let j=i+1;j<n;j++){ if(isSumm(j)||isTop(j,c))break; s++; } return s; }
   let h='<colgroup><col class="cw-mod"><col class="cw-type"><col class="cw-cat"><col class="cw-feat">'+MATRIX.markets.map(()=>'<col>').join('')+'</colgroup><thead><tr>'+heads.map(x=>`<th>${x}</th>`).join('')+'</tr></thead><tbody>';
-  const rows=MATRIX.rows;
-  for(let i=0;i<rows.length;i++){
-    const r=rows[i], summ=!r[1]&&!r[2]&&!r[3];
+  for(let i=0;i<n;i++){
+    const r=rows[i];
     h+='<tr>';
-    if(summ){ h+=`<th class="mx-mod mx-summ" colspan="4">${mxLabel(r[0])}</th>`; }
+    if(isSumm(i)){ h+=`<th class="mx-mod mx-summ" colspan="4">${mxLabel(r[0])}</th>`; }
     else {
-      if(r[0]){ let span=1; for(let j=i+1;j<rows.length&&!rows[j][0];j++) span++; h+=`<th class="mx-mod" rowspan="${span}">${mxLabel(r[0])}</th>`; }
-      h+=`<td class="mx-sub">${mxLabel(r[1])}</td><td class="mx-sub">${mxLabel(r[2])}</td><td class="mx-feat">${mxNL(r[3])}</td>`;
+      for(let c=0;c<3;c++){ if(isTop(i,c)){ const tag=c===0?'th':'td'; h+=`<${tag} class="${c===0?'mx-mod':'mx-sub'}" rowspan="${span(i,c)}">${mxLabel(r[c])}</${tag}>`; } }
+      h+=`<td class="mx-feat">${mxNL(r[3])}</td>`;
     }
     for(let k=4;k<9;k++){ h+=`<td class="mx-v ${mxCls(r[k])}">${mxNL(r[k])}</td>`; }
     h+='</tr>';
