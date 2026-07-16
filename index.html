@@ -84,6 +84,7 @@ tr:last-child td{border-bottom:none}
 .biz-shot img{width:100%;display:block}
 .biz-desc{font-size:12px;color:var(--soft);padding:10px 13px;line-height:1.6}
 .biz-empty{font-size:12.5px;color:var(--faint);font-style:italic;padding:30px;text-align:center;border:1px dashed var(--line);border-radius:var(--r)}
+.loss-grid{display:grid;grid-template-columns:1fr;gap:18px}.loss-report{border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:var(--sh);overflow:hidden}.loss-head{padding:15px 17px;background:#f7f9fc;border-bottom:1px solid var(--line-2);display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}.loss-title{font-size:14px;font-weight:800;color:var(--ink)}.loss-sub{font-size:11.5px;color:var(--soft);margin-top:3px}.loss-chips{display:flex;gap:8px;flex-wrap:wrap}.loss-chip{min-width:86px;border:1px solid #dce4f2;background:#fff;border-radius:8px;padding:7px 9px;text-align:center}.loss-chip b{display:block;font-size:16px;line-height:1.1;color:var(--brand)}.loss-chip span{font-size:10px;color:var(--soft);font-weight:700}.loss-sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;padding:15px}.loss-section{border:1px solid var(--line-2);border-radius:10px;background:#fcfdff;padding:12px}.loss-sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.loss-sec-head h3{font-size:12.5px;font-weight:800}.loss-total{font-size:11px;color:var(--brand);font-weight:800;background:rgba(58,92,219,.08);border:1px solid rgba(58,92,219,.22);padding:2px 7px;border-radius:999px;white-space:nowrap}.loss-list{display:flex;flex-direction:column;gap:8px}.loss-item{border-top:1px dashed var(--line);padding-top:8px}.loss-item:first-child{border-top:none;padding-top:0}.loss-line{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:baseline}.loss-reason{font-size:12px;font-weight:700;color:var(--ink)}.loss-count,.loss-pct{font-size:11px;font-weight:800;font-variant-numeric:tabular-nums}.loss-count{color:var(--ink)}.loss-pct{color:var(--done)}.loss-detail{font-size:11.5px;color:var(--soft);line-height:1.55;margin-top:4px}.loss-bar{height:4px;background:#edf1f7;border-radius:999px;overflow:hidden;margin-top:6px}.loss-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--done));border-radius:999px}
 
 
 </style></head><body><div class="wrap">
@@ -93,7 +94,8 @@ tr:last-child td{border-bottom:none}
 <button class="mtab" onclick="show(1,this)">周汇报进展</button>
 <button class="mtab" onclick="show(2,this)">算法指标</button>
 <button class="mtab" onclick="show(3,this)">业务观测（Grafana）</button>
-<button class="mtab" onclick="show(4,this)">产品矩阵 · 0701版</button>
+<button class="mtab" onclick="show(4,this)">流失分析报告</button>
+<button class="mtab" onclick="show(5,this)">产品矩阵 · 0716版</button>
 </div>
 
 <!-- PAGE 0 留资率 -->
@@ -124,9 +126,16 @@ tr:last-child td{border-bottom:none}
 <div class="note">来自 Grafana 的业务观测看板，当前为截图展示。要加图：在 DATA.biz 数组里加一项（title + img base64 + 可选 desc）。</div>
 </div>
 
-<!-- PAGE 4 分市场能力进展地图 -->
+<!-- PAGE 4 流失分析报告 -->
 <div class="page" id="p4">
-<div class="sec-h">产品矩阵 · 0701版</div>
+<div class="sec-h">流失分析报告</div>
+<div class="biz-grid" id="lossGrid"></div>
+<div class="note">本 tab 收纳阶段性流失分析报告；MY 公域 M6 为 6月整体分析，不贴本周留资率数据；Grafana 观测 tab 仅放本周 Grafana 截图。</div>
+</div>
+
+<!-- PAGE 5 分市场能力进展地图 -->
+<div class="page" id="p5">
+<div class="sec-h">产品矩阵 · 0716版</div>
 <div class="note">各市场（马来西亚 / 新加坡 / 墨西哥 / 澳大利亚 / 巴西）能力上线 · 支持矩阵，按 看 / 选 / 买 / 基建 四阶段。数据在 <code>MATRIX.rows</code> 可直接编辑（每行 = [阶段, 能力, 功能点, 马来西亚, 新加坡, 墨西哥, 澳大利亚, 巴西]）。<span style="color:#1f7a37;font-weight:700">绿=已具备(含🆕新上线)</span> · <span style="color:#2b5fc7;font-weight:700">浅蓝=首版已上·优化中</span> · <span style="color:#9a7b1f;font-weight:700">黄=进行中·待评测🟡</span> · 灰=规划中 · 浅灰斜体=不需要。<b>规则:有底色加粗=有进展(绿/青绿/黄);无底色=还没做(规划中·灰)或不做(不需要·浅灰斜体)。</b>全市场通用能力合并为一格。</div>
 <div class="mx-wrap"><table id="matrixTable"></table></div>
 </div>
@@ -136,7 +145,7 @@ tr:last-child td{border-bottom:none}
 <div class="lb" id="lb" onclick="this.classList.remove('on')"><div class="lb-cap" id="lbCap"></div><img id="lbImg" src="" alt=""></div>
 
 <script>
-const DATA = {"period":"0625-0701","retentionPeriod":"累计0401起 / 近7天","retention":[{"market":"马来","type":"新车","cumU":559,"cumR":204,"w7U":36,"w7R":14,"analysis":["公域新车整体留资率 14/36=38.89%（纯AI 7/19=36.8%；混合 7/17=41.2%）","TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案","FB 整体留资率偏低，需要单独分析流失原因"],"img":"img/metrics_my_public_new.png","prevW7Rate":55.56},{"market":"马来","type":"二手车","cumU":420,"cumR":173,"w7U":24,"w7R":10,"analysis":["公域二手车整体留资率 10/24=41.67%（纯AI 3/7=42.9%；混合 7/17=41.2%）","TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案","FB 整体留资率偏低，需要单独分析流失原因"],"img":"img/metrics_my_public_used.png","prevW7Rate":48.84},{"market":"新加坡","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"新加坡","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"墨西哥","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"墨西哥","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"澳洲","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"澳洲","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"巴西","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"巴西","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null}],"caps":[{"time":"this","cap":"主动唤醒","eff":"本周｜支持沉默/流失用户按已有画像触发配置唤醒话术；支持唤醒反感标签；工程侧「是否应唤醒判断 + trigger 发送算法话术」延期至 0708","infl":"有意向车/预算等画像时优先走对应话术，无明确画像时走通用话术；反感用户可打标，避免后续继续打扰","col":"buy","code":"B4","tcol":"buy","mkt":"","codeName":"B4 流失激活"},{"time":"this","cap":"主动唤醒效果指标验收","eff":"本周｜支持区分正常用户与主动唤醒用户的全流程业务指标，包括留资率、轮数占比、对话总轮数等；支持按渠道、门店维度拆解分析","infl":"主动唤醒、渠道差异、门店差异可独立追踪，方便定位低转化原因和验收策略效果","col":"infra","code":"指标","tcol":"infra","mkt":"","codeName":"基建·效果指标"},{"time":"this","cap":"在售品牌回复优化","eff":"本周｜优化用户询问“xx 品牌多少钱”类问题的回复策略，优先返回该门店该品牌下所有在售车，引导用户明确具体车型","infl":"客户按品牌泛问价格时，AI 先收窄到门店真实在售车，避免泛答品牌价格或直接报错车型","col":"select","code":"S1","tcol":"select","mkt":"","codeName":"S1 购车需求深度挖掘"},{"time":"this","cap":"澳洲中文回复","eff":"本周｜澳洲市场支持中英双语种语言检测，needask 和回复话术支持中文","infl":"澳洲中文客户可用中文继续咨询，并获得中文追问和回复","col":"look","code":"L1","tcol":"look","mkt":"澳洲","codeName":"L1 本地化多语言"},{"time":"daily","cap":"澳洲二手车客户风格适配","eff":"澳洲二手车沟通已完成，回复策略更新中；下周一 0706 二次确认后更新","infl":"为澳洲二手车回复风格适配做市场口径校准","col":"look","code":"L7","tcol":"look","mkt":"澳洲","codeName":"L7 客户回复风格适配"},{"time":"daily","cap":"Agent 架构切换","eff":"已完成 soul、skill、tool 初版拆解和代码调通，正基于各市场业务需求调优","infl":"为后续 Agent 架构接入真实市场能力打底","col":"infra","code":"架构","tcol":"infra","mkt":"","codeName":"基建·Agent 架构"},{"time":"daily","cap":"多市场进展 tab","eff":"线上看板已有初版，后续计划在每个 feature 上加 example 截图，并给每个市场各阶段进展打分","infl":"市场能力进展可按 feature 和阶段更直观看","col":"infra","code":"看板","tcol":"infra","mkt":"","codeName":"基建·能力看板"},{"time":"next","cap":"主动唤醒工程触发","eff":"0708｜工程侧判断用户是否应唤醒，并通过 trigger 发送算法提供的唤醒话术","infl":"主动唤醒从话术/标签能力推进到工程触发闭环","col":"buy","code":"B4","tcol":"buy","mkt":"","codeName":"B4 流失激活"},{"time":"next","cap":"Agent 架构灰度","eff":"0730｜马来流失唤醒使用 Agent 架构，支持基于用户全量长期记忆个性化唤醒；0830｜澳洲二手车开始灰度","infl":"Agent 架构先从唤醒和澳洲二手车场景分阶段验证","col":"infra","code":"架构","tcol":"infra","mkt":"","codeName":"基建·Agent 架构"},{"time":"next","cap":"画像主动消费","eff":"0710｜巴西上线第一版","infl":"主动消费客户已识别画像，提升“AI 记得我”的体感","col":"select","code":"S3","tcol":"select","mkt":"巴西","codeName":"S3 历史信息消费"}],"algo":{"马来":[{"ver":"v0201","type":"二手车","area":"公域","metrics":{"意图准确率":58.76}},{"ver":"v0302","type":"二手车","area":"公域","metrics":{"意图准确率":83.47,"画像准确率":92.63}},{"ver":"v0201","type":"新车","area":"公域","metrics":{"意图准确率":66.72}},{"ver":"v0304","type":"新车","area":"公域","metrics":{"意图准确率":88.65,"画像准确率":92.63}}],"新加坡":[{"ver":"v0326","type":"二手车","area":"公域","metrics":{"意图准确率":85.75}}],"墨西哥":[{"ver":"v0422","type":"新车","area":"公域","metrics":{"意图准确率":43.69}},{"ver":"v0508","type":"新车","area":"公域","metrics":{"意图准确率":64.98}},{"ver":"v0515","type":"新车","area":"公域","metrics":{"意图准确率":74.49}},{"ver":"v0525","type":"二手车","area":"公域","metrics":{"意图准确率":68.15}},{"ver":"v0529","type":"二手车","area":"公域","metrics":{"意图准确率":72.87}},{"ver":"v0601","type":"二手车","area":"公域","metrics":{"意图准确率":79.54}},{"ver":"v0603","type":"二手车","area":"公域","metrics":{"意图准确率":80.07}},{"ver":"v0604","type":"新车","area":"公域","metrics":{"意图准确率":78.98}},{"ver":"v0605","type":"新车","area":"公域","metrics":{"意图准确率":79.93}}],"澳洲":[{"ver":"v0429","type":"新车","area":"私域","metrics":{"意图准确率":55.07}},{"ver":"v0511","type":"新车","area":"私域","metrics":{"意图准确率":72.32}},{"ver":"v0514","type":"新车","area":"私域","metrics":{"意图准确率":92.03}},{"ver":"v0526","type":"二手车","area":"私域","metrics":{"意图准确率":58.89}},{"ver":"v0528","type":"二手车","area":"私域","metrics":{"意图准确率":73.08}},{"ver":"v0603","type":"二手车","area":"私域","metrics":{"意图准确率":83.14}}],"巴西":[{"ver":"v0528","type":"新车","area":"公域","metrics":{"意图准确率":68.21}},{"ver":"v0603","type":"新车","area":"公域","metrics":{"意图准确率":75.78}},{"ver":"v0612","type":"二手车","area":"公域","metrics":{"意图准确率":75.24}}]},"weekLabel":"0703_本周上线","metricDefUrl":"https://my.feishu.cn/wiki/QsqLwnsj5ie6hykFKlMc1ZTYnPh","retOverview":[],"capGroups":{},"biz":[{"title":"马来公域留资率指标（整体）","img":"img/metrics_my_public_overall.png","desc":"TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案。FB 整体留资率偏低，需要单独分析流失原因。"},{"title":"马来公域留资率指标（TikTok）","img":"img/metrics_my_public_tiktok.png","desc":"TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案。FB 整体留资率偏低，需要单独分析流失原因。"},{"title":"马来公域留资率指标（Facebook）","img":"img/metrics_my_public_facebook.png","desc":"TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案。FB 整体留资率偏低，需要单独分析流失原因。"},{"title":"马来公域留资率指标（二手车）","img":"img/metrics_my_public_used.png","desc":"TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案。FB 整体留资率偏低，需要单独分析流失原因。"},{"title":"马来公域留资率指标（新车）","img":"img/metrics_my_public_new.png","desc":"TK 有较多低意向用户（纯多媒体）记录未同步算法；算法侧留资率与工程侧中高意向留资率基本一致，已对齐数据分析及同步方案。FB 整体留资率偏低，需要单独分析流失原因。"},{"title":"马来私域到店率指标","img":"","desc":"对话 48 条均来自 Jetour 门店，其中有到店意愿的 45.83%，实际完成到店预约的 8.33%；已在策略分析中，预计下周完成策略更新并回收指标变化。"}]};
+const DATA = {"period":"0710-0716","retentionPeriod":"累计0401起 / 近7天","retention":[{"market":"马来","type":"新车","cumU":810,"cumR":276,"w7U":113,"w7R":18,"analysis":["本周马来公域新车留资率 <span class='rr' title='18/113'>15.93%</span>；0708 起 Jetour Petaling Jaya 门店开始 Facebook + TikTok 投流，累计进私 77、留资 2，且首触开口话术不好承接","典型问题：“What services do you offer?” 时，AI 回复“我们专注于 xxx 的新车售卖，留个电话给您定制个人购车方案”；“How much do your services cost?” 时，AI 回复 OTR price 取决于 spec 和 service 选择","已同步王寅亮，确认非协助投流，并已告知门店存在问题；剔除 Jetour Petaling Jaya 后新车留资率 <span class='rr' title='剔除异常投流门店后'>44.44%</span>"],"img":"img/ret_my_public_0710_0716.png","prevW7Rate":38.89},{"market":"马来","type":"二手车","cumU":531,"cumR":240,"w7U":39,"w7R":28,"analysis":["本周马来公域二手车留资率 <span class='rr' title='28/39'>71.79%</span>；周期累计留资率为 <span class='rr' title='240/531'>45.20%</span>"],"img":"img/ret_my_public_0710_0716.png","prevW7Rate":41.67},{"market":"新加坡","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"新加坡","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"墨西哥","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"墨西哥","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"澳洲","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"澳洲","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"巴西","type":"新车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null},{"market":"巴西","type":"二手车","cumU":null,"cumR":null,"w7U":null,"w7R":null,"analysis":[],"img":"","prevW7Rate":null}],"caps":[{"time":"this","cap":"到店预约推进","eff":"0717｜支持到店意向后的预约转化承接，主动追问客户到店 time / date","infl":"全市场到店意愿用户可继续承接到具体预约时间，减少只表达想来店但未落到时间的断点","col":"select","code":"S2","tcol":"select","mkt":"","codeName":"S2 到店预约推进"},{"time":"this","cap":"Booking 车库存状态表达","eff":"0717｜支持 booking 车准确表达库存状态，T2 i-DM 等车型可回复“可预定 / 试驾，暂无 ready stock”","infl":"用户问 T2 i-DM 等 booking 车时，不再按普通现车口径承接，避免库存状态表达错误","col":"look","code":"L5","tcol":"look","mkt":"","codeName":"L5 车型与库存状态"},{"time":"this","cap":"异州用户报价策略","eff":"0717｜澳洲异州客户报价使用裸车价话术","infl":"澳洲异州客户不再被本州 driveaway / 上路费口径误导，报价边界更清晰","col":"look","code":"L6","tcol":"look","mkt":"澳洲","codeName":"L6 价格口径与报价策略"},{"time":"this","cap":"澳洲二手车年份回答","eff":"0717｜用户问 “What year was it?” 时，支持同时回复 manufacture year 和 model year","infl":"澳洲二手车年份类问题回答更完整，减少只答单一年份造成的信息缺口","col":"look","code":"L5","tcol":"look","mkt":"澳洲","codeName":"L5 车辆信息承接"},{"time":"this","cap":"巴西购车城市画像","eff":"0717｜优化巴西购车城市画像识别准确率和层级关系","infl":"巴西用户城市画像更稳定，后续推荐、转接和门店匹配可消费更准确的地区信息","col":"look","code":"L3","tcol":"look","mkt":"巴西","codeName":"L3 基础画像识别"},{"time":"this","cap":"NeedAsk 追问连续性","eff":"0717｜修复去重失效问题，并调整兜底策略","infl":"用户连续咨询时，NeedAsk 更少重复追问，兜底承接更连贯","col":"select","code":"S1","tcol":"select","mkt":"","codeName":"S1 购车需求深度挖掘"},{"time":"this","cap":"唤醒话术去重","eff":"0717｜唤醒话术支持去重，降低重复触达体感","infl":"已被唤醒过的用户减少重复收到相似话术，降低流失激活的打扰感","col":"buy","code":"B4","tcol":"buy","mkt":"","codeName":"B4 流失激活"},{"time":"this","cap":"M6 意图识别与历史承接","eff":"0717｜马来 M6 线上意图准确率约 98.14%；补充语料并修复 23 条意图 badcase、3 条意向车标签 badcase、3 条 Rewrite 过度补齐 badcase","infl":"马来 M6 高中低意向分析中的主要意图和历史承接问题已回收到语料与规则修复","col":"look","code":"L2","tcol":"look","mkt":"马来","codeName":"L2 意图识别"},{"time":"this","cap":"车型名抽取修复","eff":"0717｜修复 1 条 “4x4” 误识别为 “BMW 4X” badcase，及 1 条意向车未识别 badcase","infl":"马来车辆信息承接中，四驱配置和意向车识别更稳，减少车型误读","col":"look","code":"L5","tcol":"look","mkt":"马来","codeName":"L5 车辆信息承接"},{"time":"this","cap":"澳洲中英检测与免责声明适配","eff":"0717｜工程专属语言检测接口新增支持澳洲中英检测与免责声明适配","infl":"澳洲中文用户和英文用户可进入更匹配的回复与免责声明口径","col":"infra","code":"多语言","tcol":"infra","mkt":"澳洲","codeName":"基建·多语言能力"},{"time":"this","cap":"画像接口字段调整","eff":"0717｜工程画像接口调整为“品牌名 + 车系名”","infl":"工程侧消费画像时，品牌和车系字段更清晰，减少车型层级混用","col":"infra","code":"画像接口","tcol":"infra","mkt":"","codeName":"基建·画像接口"},{"time":"daily","cap":"公私域分析与策略调整","eff":"基于公域 / 私域分析报告和话术优化方向，完成语料与回复策略调整","infl":"本周留资、到店、唤醒分析中的可修复问题已回收到语料和回复策略","col":"infra","code":"分析","tcol":"infra","mkt":"","codeName":"基建·分析与策略"},{"time":"next","cap":"Agent 架构切换","eff":"0730｜马来市场流失激活接入 Agent 架构，可基于用户全量长期记忆进行个性化唤醒","infl":"马来流失激活将作为 Agent 架构真实场景验证入口","col":"infra","code":"架构","tcol":"infra","mkt":"马来","codeName":"基建·Agent 架构"},{"time":"next","cap":"澳洲二手车回复质量专项","eff":"近两周｜继续优化车型识别、trade-in、service history、window tinting、赠礼承诺、大小写和分段回复等 badcase","infl":"澳洲二手车长对话回复质量继续专项收敛","col":"look","code":"L7","tcol":"look","mkt":"澳洲","codeName":"L7 客户回复风格适配"},{"time":"next","cap":"澳洲二手车车辆信息问答","eff":"近两周｜继续优化年份、保养记录、配置 / 改装项等资料消费策略","infl":"澳洲二手车车辆资料问答继续补齐长尾信息承接","col":"look","code":"L5","tcol":"look","mkt":"澳洲","codeName":"L5 车辆信息承接"},{"time":"next","cap":"新版 Rewrite 效果验证","eff":"近两周｜验证新版 Rewrite 效果，减少过度继承上轮意图","infl":"全市场多轮承接中，降低把上一轮意图错误带入当前轮的风险","col":"look","code":"L2","tcol":"look","mkt":"","codeName":"L2 意图识别"},{"time":"next","cap":"模型与 Prompt 升级","eff":"近两周｜澳洲二手车先验证 GPT-5.5 + 总结 prompt 整体优化，后续扩展到通用意图和 promotion 场景","infl":"先用澳洲二手车复杂上下文验证总结质量，再扩展到更多通用场景","col":"infra","code":"模型","tcol":"infra","mkt":"澳洲","codeName":"基建·模型与 Prompt 升级"}],"algo":{"马来":[{"ver":"v0201","type":"二手车","area":"公域","metrics":{"意图准确率":58.76}},{"ver":"v0302","type":"二手车","area":"公域","metrics":{"意图准确率":83.47,"画像准确率":92.63}},{"ver":"v0201","type":"新车","area":"公域","metrics":{"意图准确率":66.72}},{"ver":"v0304","type":"新车","area":"公域","metrics":{"意图准确率":88.65,"画像准确率":92.63}}],"新加坡":[{"ver":"v0326","type":"二手车","area":"公域","metrics":{"意图准确率":85.75}}],"墨西哥":[{"ver":"v0422","type":"新车","area":"公域","metrics":{"意图准确率":43.69}},{"ver":"v0508","type":"新车","area":"公域","metrics":{"意图准确率":64.98}},{"ver":"v0515","type":"新车","area":"公域","metrics":{"意图准确率":74.49}},{"ver":"v0525","type":"二手车","area":"公域","metrics":{"意图准确率":68.15}},{"ver":"v0529","type":"二手车","area":"公域","metrics":{"意图准确率":72.87}},{"ver":"v0601","type":"二手车","area":"公域","metrics":{"意图准确率":79.54}},{"ver":"v0603","type":"二手车","area":"公域","metrics":{"意图准确率":80.07}},{"ver":"v0604","type":"新车","area":"公域","metrics":{"意图准确率":78.98}},{"ver":"v0605","type":"新车","area":"公域","metrics":{"意图准确率":79.93}}],"澳洲":[{"ver":"v0429","type":"新车","area":"私域","metrics":{"意图准确率":55.07}},{"ver":"v0511","type":"新车","area":"私域","metrics":{"意图准确率":72.32}},{"ver":"v0514","type":"新车","area":"私域","metrics":{"意图准确率":92.03}},{"ver":"v0526","type":"二手车","area":"私域","metrics":{"意图准确率":58.89}},{"ver":"v0528","type":"二手车","area":"私域","metrics":{"意图准确率":73.08}},{"ver":"v0603","type":"二手车","area":"私域","metrics":{"意图准确率":83.14}}],"巴西":[{"ver":"v0528","type":"新车","area":"公域","metrics":{"意图准确率":68.21}},{"ver":"v0603","type":"新车","area":"公域","metrics":{"意图准确率":75.78}},{"ver":"v0612","type":"二手车","area":"公域","metrics":{"意图准确率":75.24}}]},"weekLabel":"0717_本周上线","metricDefUrl":"https://my.feishu.cn/wiki/QsqLwnsj5ie6hykFKlMc1ZTYnPh","retOverview":[],"capGroups":{},"biz":[],"lossReports":[{"title":"MY 公域 M6 6月留资率分析总结","subtitle":"按高 / 中 / 低意向未留资用户分层复盘","chips":[{"label":"高意向未留资","value":"150"},{"label":"中意向未留资","value":"62"},{"label":"低意向未留资","value":"778"},{"label":"工程统计问题","value":"已解决"}],"sections":[{"title":"高意向未留资用户","total":"150 个","items":[{"reason":"内部 / Demo / 门店运营测试数据","count":"59","pct":"39.30%"},{"reason":"算法识别留资，工程侧统计为未留资","count":"37","pct":"24.70%","detail":"米那提同步已解决。"},{"reason":"逻辑合理未留资","count":"27","pct":"18.00%","detail":"18 条 test drive 投流单轮流失；其余包括缺少视频内容、客户要门店联系方式、问地址疑似直接到店、多轮合理解答后未留资、代子女问询 / 非急用车、二手车价格未配置等。"},{"reason":"算法问题：意图识别 / 画像等","count":"13","pct":"8.70%","detail":"本周修复或预计修复 9 条，包括意图识别语料、Rewrite 过度补齐、人工对话同步后意向车未识别、4x4 误识别为 BMW 4X；历史已解决 3 条，多意图询问待排期 1 条。"},{"reason":"非精准客户","count":"8","pct":"5.30%","detail":"长篇广告、test drive 投流后闲聊、泰语购车、意向买摩托车。"},{"reason":"人工介入未留资","count":"5","pct":"3.30%"},{"reason":"纯人工对话","count":"1","pct":"0.70%","detail":"算法未接待，因同步对话历史识别为高意向。"}]},{"title":"中意向未留资用户","total":"62 个","items":[{"reason":"算法问题：意图识别 / 画像等","count":"19","pct":"30.65%","detail":"本周修复 7 条，包括 Rebate / Promo 语料隔离、月收入、是否贷款、售卖类型声明、长尾“已是车主”、T2 iDM Booking 状态；历史已解决 7 条，待排期 5 条。"},{"reason":"内部 / Demo / 门店运营测试数据","count":"17","pct":"27.40%"},{"reason":"逻辑合理且话术合理","count":"6","pct":"11.30%","detail":"包括单轮仅车型、T1 / T2 价格合理回复；另有黑名单 / 破产、阿拉伯语、其他品牌、保养费用缺知识等客观阻碍。"},{"reason":"多媒体无效对话 / 算法未接待","count":"7","pct":"11.30%","detail":"6 条因同步对话历史识别为中意向；1 条纯人工多媒体信息。"},{"reason":"人工介入未留资","count":"6","pct":"9.70%"},{"reason":"疑似推流不精准广告 / 买摩托车","count":"5","pct":"8.10%","detail":"长篇广告、意向买摩托车、多媒体信息 + 问号短句闲聊。"},{"reason":"产品问题：话术 / 语料等","count":"2","pct":"3.20%","detail":"AskLoanIntent 话术已修复 1 条；意向车话术 NeedAsk 顺序 0616 已修复 1 条。"}]},{"title":"低意向未留资用户","total":"778 个","items":[{"reason":"多媒体无效对话","count":"479","pct":"61.60%"},{"reason":"无意向无效对话","count":"86","pct":"11.10%"},{"reason":"逻辑合理未留资","count":"77","pct":"9.90%"},{"reason":"内部 / Demo / 门店运营测试数据","count":"68","pct":"8.70%"},{"reason":"算法未接待","count":"40","pct":"5.10%"},{"reason":"算法问题：意图识别 / 画像等","count":"27","pct":"3.50%","detail":"本周修复 16 条，历史已解决 9 条，待排期 2 条。"},{"reason":"算法识别留资，工程侧未识别","count":"1","pct":"0.10%"}]}]},{"title":"马来私域 M7W2 到店与唤醒分析","subtitle":"私域到店意愿、预约承接与唤醒动作复盘","chips":[{"label":"分析样本","value":"11"},{"label":"WillVisitStore=yes","value":"54.55%"},{"label":"有真实到店时间","value":"45.45%"},{"label":"预约转化率","value":"83.33%"}],"sections":[{"title":"到店意愿 = yes","total":"6 / 11","items":[{"reason":"用户主动提供时间","count":"2","pct":"","detail":"以 text 文本形式主动给出到店日期 / 时间；包含车主预约保养服务、想试驾 T2。"},{"reason":"私域回复优化后推动预约","count":"2","pct":"","detail":"试驾话术追问时间、门店位置后追问到店时间，策略生效。"},{"reason":"非购车咨询误识别","count":"1","pct":"","detail":"用户发保养提醒类内容，实际无购车需求。"},{"reason":"T2 iDM 要到店试驾","count":"1","pct":"","detail":"0715 上线针对 booking 车回复策略可解决。"}]},{"title":"到店意愿 = no / 待优化","total":"5 / 11","items":[{"reason":"无需优化","count":"2","pct":"","detail":"人工接管 / 非购车咨询。"},{"reason":"T2 iDM 到店试驾","count":"1","pct":"","detail":"0715 booking 车策略已覆盖。"},{"reason":"试驾走到意向车意图","count":"1","pct":"","detail":"意向车意图准确率强化。"},{"reason":"待排期能力","count":"2","pct":"","detail":"最低月薪计算、NCD 55% 车辆价格暂不支持。"}]},{"title":"唤醒销售动作指标","total":"11 个用户 / 15 次","items":[{"reason":"唤醒后继续回复","count":"4","pct":"","detail":"4 个用户共计回复 6 次，且 3 个最终完成留资。"},{"reason":"重复唤醒","count":"3","pct":"","detail":"1 个留资；另外两个分别为 India 客户和希望知道 T2 美元报价的客户，Agent 已试可优化。"}]}]}]};
 const LSBNAME = {};
 DATA.caps.forEach(c=>{ if(c.code && c.codeName) LSBNAME[c.code]=c.codeName; });
 
@@ -214,7 +223,7 @@ function toggleA(i){ retOpen[i]=!retOpen[i]; renderRet(); }
 /* ---- PAGE1 能力地图 ---- */
 const COLS={lsb:[{k:'look',n:'看 Look',d:'L1-L7',c:'var(--look)'},{k:'select',n:'选 Select',d:'S1-S10',c:'var(--select)'},{k:'buy',n:'买 Buy',d:'B1-B4',c:'var(--buy)'},{k:'infra',n:'基建/底层',d:'',c:'var(--infra)'}],
 tech:[{k:'look',n:'看 Look',d:'公转私',c:'var(--look)'},{k:'select',n:'选 Select',d:'谈判推进',c:'var(--select)'},{k:'buy',n:'买 Buy',d:'销售协同',c:'var(--buy)'},{k:'infra',n:'基建',d:'工程/数据',c:'var(--infra)'}]};
-const VER=[{k:'lsb',l:'按 L/S/B 模块'},{k:'tech',l:'按 看/选/买'}];const TM=[{k:'this',l:'本周（0625-0701）'},{k:'daily',l:'日常工作'},{k:'next',l:'近两周'}];
+const VER=[{k:'lsb',l:'按 L/S/B 模块'},{k:'tech',l:'按 看/选/买'}];const TM=[{k:'this',l:'本周（0713-0719）'},{k:'daily',l:'日常工作'},{k:'next',l:'近两周'}];
 const cv='lsb';let ct='this';
 function capCard(d){
   const stcMap={this:'var(--done)',daily:'var(--daily)',next:'var(--plan)'};
@@ -315,19 +324,36 @@ function renderBiz(){
   if(dl) dl.innerHTML=defUrl?` ｜ 📖 指标定义见 <a href="${defUrl}" target="_blank">飞书文档</a>`:'';
   const bp=document.getElementById('bizPeriod'); if(bp) bp.textContent=DATA.period;
   const box=document.getElementById('bizGrid');
-  if(!DATA.biz||!DATA.biz.length){ box.innerHTML='<div class="biz-empty">暂未添加 Grafana 截图。在 DATA.biz 里加 {title, img(base64), desc} 即可展示。</div>'; return; }
+  if(!DATA.biz||!DATA.biz.length){ box.innerHTML='<div class="biz-empty">本周暂无 Grafana 截图，业务观测先留空。</div>'; return; }
   box.innerHTML=DATA.biz.map(b=>`<figure class="biz-shot"><figcaption>${b.title||''}</figcaption>${b.img?`<img src="${b.img}" alt="${b.title||''}" onclick="zoomImg('${b.img}','${(b.title||'').replace(/'/g,'')}')">`:'<div class="imgph">（贴 Grafana 截图）</div>'}${b.desc?`<div class="biz-desc">${b.desc}</div>`:''}</figure>`).join('');
+}
+function renderLoss(){
+  const box=document.getElementById('lossGrid');
+  if(!box)return;
+  const reports=DATA.lossReports||[];
+  if(!reports.length){ box.innerHTML='<div class="biz-empty">本周暂无流失分析报告。</div>'; return; }
+  const esc=s=>String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  const bar=p=>{ const n=parseFloat(String(p||'').replace('%','')); return Number.isFinite(n)?Math.max(1,Math.min(100,n)):0; };
+  box.className='loss-grid';
+  box.innerHTML=reports.map(r=>{
+    const chips=(r.chips||[]).map(c=>`<div class="loss-chip"><b>${esc(c.value)}</b><span>${esc(c.label)}</span></div>`).join('');
+    const sections=(r.sections||[]).map(sec=>{
+      const items=(sec.items||[]).map(it=>`<div class="loss-item"><div class="loss-line"><div class="loss-reason">${esc(it.reason)}</div><div class="loss-count">${esc(it.count)}</div><div class="loss-pct">${esc(it.pct)}</div></div>${it.pct?`<div class="loss-bar"><i style="width:${bar(it.pct)}%"></i></div>`:''}${it.detail?`<div class="loss-detail">${esc(it.detail)}</div>`:''}</div>`).join('');
+      return `<section class="loss-section"><div class="loss-sec-head"><h3>${esc(sec.title)}</h3><span class="loss-total">${esc(sec.total)}</span></div><div class="loss-list">${items}</div></section>`;
+    }).join('');
+    return `<article class="loss-report"><div class="loss-head"><div><div class="loss-title">${esc(r.title)}</div><div class="loss-sub">${esc(r.subtitle)}</div></div><div class="loss-chips">${chips}</div></div><div class="loss-sections">${sections}</div></article>`;
+  }).join('');
 }
 /* ---- PAGE4 分市场能力进展矩阵（可编辑：改 MATRIX.rows 即可）---- */
 const MATRIX={
-  markets: [
+  "markets": [
     "马来西亚",
     "新加坡",
     "墨西哥",
     "澳大利亚",
     "巴西"
   ],
-  rows: [
+  "rows": [
     [
       "看 Look",
       "L1 本地化多语言",
@@ -335,7 +361,7 @@ const MATRIX={
       "✅已具备",
       "不需要",
       "不需要",
-      "✅0703中文",
+      "✅0717中英检测+免责声明",
       "不需要"
     ],
     [
@@ -365,7 +391,7 @@ const MATRIX={
       "✅和sales完成多轮沟通，已满足基本需求",
       "🟡待与当地sales对齐",
       "🟡待与当地sales对齐",
-      "首版已上·优化中（0626）",
+      "首版已上·优化中（0717）",
       "🟡待与当地sales对齐"
     ],
     [
@@ -382,11 +408,11 @@ const MATRIX={
       "",
       "",
       "多轮对话连贯（指代/省略自动补全）",
-      "✅全市场",
-      "✅全市场",
-      "✅全市场",
-      "✅全市场",
-      "✅全市场"
+      "🟡0717验证新版 Rewrite",
+      "🟡0717验证新版 Rewrite",
+      "🟡0717验证新版 Rewrite",
+      "🟡0717验证新版 Rewrite",
+      "🟡0717验证新版 Rewrite"
     ],
     [
       "",
@@ -426,7 +452,7 @@ const MATRIX={
       "规划中",
       "规划中",
       "规划中",
-      "规划中"
+      "✅0717购车城市层级"
     ],
     [
       "",
@@ -442,7 +468,7 @@ const MATRIX={
       "",
       "L4 车型识别与推荐",
       "车型名识别",
-      "✅全市场（准确率 92.19%）",
+      "✅0717修复4x4/意向车识别",
       "✅全市场（准确率 92.19%）",
       "✅全市场（准确率 92.19%）",
       "✅全市场（准确率 92.19%）",
@@ -507,6 +533,26 @@ const MATRIX={
       "✅全市场",
       "✅全市场",
       "✅全市场"
+    ],
+    [
+      "",
+      "",
+      "Booking 车库存状态表达（可预定/试驾/暂无 ready stock）",
+      "✅0717全市场",
+      "✅0717全市场",
+      "✅0717全市场",
+      "✅0717全市场",
+      "✅0717全市场"
+    ],
+    [
+      "",
+      "",
+      "二手车年份信息回复（manufacture year / model year）",
+      "规划中",
+      "规划中",
+      "规划中",
+      "✅0717澳洲",
+      "规划中"
     ],
     [
       "",
@@ -602,11 +648,11 @@ const MATRIX={
       "",
       "",
       "追问去重（不重复问已知信息）",
-      "✅全市场",
-      "✅全市场",
-      "✅全市场",
-      "✅全市场",
-      "✅全市场"
+      "✅0717去重+兜底策略",
+      "✅0717去重+兜底策略",
+      "✅0717去重+兜底策略",
+      "✅0717去重+兜底策略",
+      "✅0717去重+兜底策略"
     ],
     [
       "",
@@ -686,6 +732,16 @@ const MATRIX={
       "规划中",
       "规划中",
       "规划中",
+      "规划中"
+    ],
+    [
+      "",
+      "",
+      "异州用户报价口径（裸车价 / driveaway 边界）",
+      "规划中",
+      "规划中",
+      "规划中",
+      "✅0717澳洲",
       "规划中"
     ],
     [
@@ -910,13 +966,23 @@ const MATRIX={
     ],
     [
       "",
+      "",
+      "到店意愿后主动追问到店时间",
+      "✅0717全市场",
+      "✅0717全市场",
+      "✅0717全市场",
+      "✅0717全市场",
+      "✅0717全市场"
+    ],
+    [
+      "",
       "B4 流失激活",
       "唤醒激活（沉默/流失按原因激活）",
-      "首版已上·优化中（0703）\n🟡0708工程触发",
-      "首版已上·优化中（0703）\n🟡0708工程触发",
-      "首版已上·优化中（0703）\n🟡0708工程触发",
-      "首版已上·优化中（0703）\n🟡0708工程触发",
-      "首版已上·优化中（0703）\n🟡0708工程触发"
+      "首版已上·优化中（0717去重）",
+      "首版已上·优化中（0717去重）",
+      "首版已上·优化中（0717去重）",
+      "首版已上·优化中（0717去重）",
+      "首版已上·优化中（0717去重）"
     ],
     [
       "",
@@ -942,7 +1008,7 @@ const MATRIX={
       "基建 Infra",
       "算法准确率",
       "意图识别准确率",
-      "新车88.65%（v0304）\n二手83.47%（v0302）",
+      "M6 98.14%（0717）",
       "二手85.75%（v0326）",
       "新车79.93%（v0605）\n二手80.07%（v0603）",
       "新车92.03%（v0514）\n二手83.14%（v0603）",
@@ -982,7 +1048,7 @@ const MATRIX={
       "",
       "业务指标",
       "公域留资率",
-      "0703 渠道分析中",
+      "新车15.93% / 二手71.79%（0710-0716）",
       "暂无数据",
       "暂无数据",
       "暂无数据",
@@ -1061,6 +1127,16 @@ const MATRIX={
     [
       "",
       "",
+      "模型与 Prompt 升级",
+      "规划中",
+      "规划中",
+      "规划中",
+      "🟡0717验证 GPT-5.5 + 总结 prompt",
+      "规划中"
+    ],
+    [
+      "",
+      "",
       "9月中·初版上线（shadow放量）",
       "🟡 shadow mode·真实流量验证、不对用户输出；S4 金融、B1 档案、B4 激活、S3 历史 就位",
       "🟡 shadow mode·真实流量验证、不对用户输出；S4 金融、B1 档案、B4 激活、S3 历史 就位",
@@ -1123,5 +1199,5 @@ function renderMatrix(){
   }
   document.getElementById('matrixTable').innerHTML=h+'</tbody>';
 }
-renderRet();renderCap();renderAlgo();renderBiz();renderMatrix();
+renderRet();renderCap();renderAlgo();renderBiz();renderLoss();renderMatrix();
 </script></body></html>
